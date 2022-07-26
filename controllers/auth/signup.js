@@ -2,13 +2,14 @@ const { Conflict } = require("http-errors");
 const { User } = require("../../models");
 
 const signup = async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password, userData } = req.body;
   const user = await User.findOne({ email });
+
   if (user) {
-    throw new Conflict(`Email in use`);
+    throw new Conflict(`Email already exists`);
   }
 
-  const newUser = new User({ email });
+  const newUser = new User({ name, email, userData });
   newUser.setPassword(password);
   await newUser.save();
 
@@ -17,10 +18,11 @@ const signup = async (req, res) => {
     code: 201,
     data: {
       user: {
+        name,
         email,
+        userData,
       },
     },
   });
 };
-
 module.exports = signup;
